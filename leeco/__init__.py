@@ -105,7 +105,9 @@ def _test_solution(testcase: TestCase) -> typing.List[Result]:
             if testcase.print_output:
                 print(res_obj)
         except TypeError as e:
-            raise TypeError(f"Error occurred when calling `{_main_point.__name__}` with `{params}`") from e
+            raise TypeError(
+                f"Error occurred when calling `{_main_point.__name__}` with `{params}`: {e}"
+            ).with_traceback(e.__traceback__) from None  # Re-Raise with traceback of original exception
 
     return results
 
