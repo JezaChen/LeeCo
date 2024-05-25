@@ -70,7 +70,7 @@ def _test_design(testcase: TestCase):
         with timeit_block(testcase.timeit):
             for command, param in zip(commands, params):
                 if command == _main_point.__name__:  # create instance
-                    ins = _main_point()
+                    ins = _main_point(*param)
                     result.append(None)
                 else:  # call method
                     method = getattr(ins, command)
