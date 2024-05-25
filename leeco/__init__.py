@@ -23,7 +23,7 @@ def inject(main_point: typing.Callable):
         _main_point = main_point
 
 
-def dump_output(output, annotation=None) -> str:
+def _dump_output(output, annotation=None) -> str:
     output_type = type(output)
     if annotation is not None and annotation is not inspect.Parameter.empty:
         output_type = annotation
@@ -37,15 +37,15 @@ def dump_output(output, annotation=None) -> str:
 _InputType = typing.TypeVar('_InputType')
 
 
-def parse_input(input_str: str, input_type_annotation: typing.Type[_InputType]) -> _InputType:
+def _parse_input(input_str: str, input_type_annotation: typing.Type[_InputType]) -> _InputType:
     parser = get_parser(input_type_annotation)
     return parser.parse(input_str)
 
 
-def parse_params(input_str_list: typing.List[str], param_list: typing.List[inspect.Parameter]) -> typing.List:
+def _parse_params(input_str_list: typing.List[str], param_list: typing.List[inspect.Parameter]) -> typing.List:
     if len(input_str_list) != len(param_list):
         raise ValueError("The number of input strings is not equal to the number of parameters")
-    return [parse_input(input_str, param.annotation) for input_str, param in zip(input_str_list, param_list)]
+    return [_parse_input(input_str, param.annotation) for input_str, param in zip(input_str_list, param_list)]
 
 
 def _test_design(input_expression: str, expected_result: str = ""):
@@ -70,7 +70,7 @@ def _test_design(input_expression: str, expected_result: str = ""):
             else:  # call method
                 method = getattr(ins, command)
                 result.append(method(*param))
-        print(dump_output(result))
+        print(_dump_output(result))
 
 
 def test(input_expression: str, expected_result: str = ""):
@@ -93,12 +93,10 @@ def test(input_expression: str, expected_result: str = ""):
 
     for i in range(0, len(raw_input_args), len(signature.parameters) - 1):
         instance = _main_point_cls()
-        params = parse_params(
-            raw_input_args[i:i + len(signature.parameters) - 1],
-            list(signature.parameters.values())[1:]
-        )
+        params = _parse_params(raw_input_args[i:i + len(signature.parameters) - 1],
+                               list(signature.parameters.values())[1:])
         result = _main_point(instance, *params)
-        print(dump_output(result, signature.return_annotation))
+        print(_dump_output(result, signature.return_annotation))
 
 
 def _get_outer_methods(cls):
