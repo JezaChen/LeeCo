@@ -2,6 +2,7 @@
 import typing
 import inspect
 import sys
+import types
 
 __all__ = [
     # main functions
@@ -17,18 +18,12 @@ from leeco._representations import ListParser, TreeNodeParser, TrivialParser, Li
 from leeco._testcases import TestCase
 from leeco.data_structures import ListNode, TreeNode
 
-_main_point = None  # type: typing.Optional[typing.Callable]
-_main_point_cls = None  # type: typing.Optional[typing.Type]
+_main_point = None  # type: typing.Optional[types.MethodType | typing.Type]
 
 
 def inject(main_point: typing.Callable):
-    global _main_point, _main_point_cls
-    if inspect.isclass(main_point):
-        _main_point_cls = main_point
-        _main_point = None
-    else:
-        _main_point_cls = vars(sys.modules[main_point.__module__])[main_point.__qualname__.split('.')[0]]
-        _main_point = main_point
+    global _main_point
+    _main_point = main_point
 
 
 def _dump_output(output, annotation=None) -> str:
@@ -57,9 +52,9 @@ def _parse_params(input_str_list: typing.List[str], param_list: typing.List[insp
 
 
 def _test_design(testcase: TestCase):
-    global _main_point_cls
+    global _main_point
 
-    assert _main_point_cls is not None
+    assert _main_point is not None
     input_lines = testcase.input_str.strip().split('\n')
     if len(input_lines) % 2:
         raise ValueError("The input expression must have 2 lines for each test case")
@@ -72,13 +67,30 @@ def _test_design(testcase: TestCase):
         result = []
 
         for command, param in zip(commands, params):
-            if command == _main_point_cls.__name__:  # create instance
-                ins = _main_point_cls()
+            if command == _main_point.__name__:  # create instance
+                ins = _main_point()
                 result.append(None)
             else:  # call method
                 method = getattr(ins, command)
                 result.append(method(*param))
         print(_dump_output(result))
+
+
+def _test_solution(testcase: TestCase):
+    cls = vars(sys.modules[_main_point.__module__])[_main_point.__qualname__.split('.')[0]]
+    input_lines = testcase.input_str.strip().split('\n')
+    raw_input_args = [line.strip() for line in input_lines]
+
+    signature = inspect.signature(_main_point)
+    if len(raw_input_args) % (len(signature.parameters) - 1) != 0:
+        raise ValueError("The number of input arguments is not a multiple of the number of parameters")
+
+    for i in range(0, len(raw_input_args), len(signature.parameters) - 1):
+        instance = cls()
+        params = _parse_params(raw_input_args[i:i + len(signature.parameters) - 1],
+                               list(signature.parameters.values())[1:])
+        result = _main_point(instance, *params)
+        print(_dump_output(result, signature.return_annotation))
 
 
 @typing.overload
@@ -90,30 +102,22 @@ def test(testcase: TestCase, /) -> None: ...
 
 
 def test(*args, **kwargs):
-    global _main_point, _main_point_cls
+    global _main_point
 
     testcase = TestCase(*args, **kwargs)
-    if _main_point is None and _main_point_cls is None:
-        _try_dynamic_inject()
-    if _main_point is None and _main_point_cls is None:
-        raise RuntimeError("Please inject main_point first")
     if _main_point is None:
+        # Try to find the default main points to injects
+        _try_dynamic_inject()
+
+    # After the dynamic inject, the main is still None, raise an error
+    if _main_point is None:
+        raise RuntimeError("Please inject main_point first")
+    if inspect.isclass(_main_point):
         # may be a design problem
         return _test_design(testcase)
-
-    input_lines = testcase.input_str.strip().split('\n')
-    raw_input_args = [line.strip() for line in input_lines]
-
-    signature = inspect.signature(_main_point)
-    if len(raw_input_args) % (len(signature.parameters) - 1) != 0:
-        raise ValueError("The number of input arguments is not a multiple of the number of parameters")
-
-    for i in range(0, len(raw_input_args), len(signature.parameters) - 1):
-        instance = _main_point_cls()
-        params = _parse_params(raw_input_args[i:i + len(signature.parameters) - 1],
-                               list(signature.parameters.values())[1:])
-        result = _main_point(instance, *params)
-        print(_dump_output(result, signature.return_annotation))
+    else:
+        # may be a regular algorithm problem
+        return _test_solution(testcase)
 
 
 def _get_outer_methods(cls):
