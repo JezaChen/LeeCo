@@ -23,6 +23,7 @@ def get_parser(type_annotation: typing.Type):
     if match_type(type_annotation, ds.ListNode):
         parser = ListNodeParser
     if match_type(type_annotation, list):
+        # todo add element type detection?
         parser = ListParser
     return parser
 
@@ -58,6 +59,30 @@ class ListParser(BaseParser):
     """ A parser for list that uses eval to parse and str to serialize. """
 
     @classmethod
+    def split_list(cls, representation: str) -> typing.Iterator[typing.Any]:
+        """ Split a list representation into a list of string representations of the elements.
+        """
+        # remove the first '[' and the last ']'
+        representation = representation[1:-1]
+        if not representation:
+            return
+        # split by ',' but ignore ',' inside brackets
+        level = 0
+        start = 0
+        for i, c in enumerate(representation):
+            if c == '[':
+                level += 1
+            elif c == ']':
+                level -= 1
+            elif c == ',' and not level:
+                elem_str = representation[start:i].strip()
+                yield elem_str
+                start = i + 1
+        last_elem_str = representation[start:].strip()
+        if last_elem_str:  # sometimes the list ends with a comma
+            yield last_elem_str
+
+    @classmethod
     def parse(
             cls,
             representation: str,
@@ -72,15 +97,11 @@ class ListParser(BaseParser):
             input_str = representation.replace('null', 'None', -1)
             # call the trivial parser
             return TrivialParser.parse(input_str)
-
-        representation = representation[1:-1]
-        if not representation:
-            return []
         parser = get_parser(elem_type)
 
         return [
             parser.parse(elem_str.strip())
-            for elem_str in representation.split(',')
+            for elem_str in cls.split_list(representation)
         ]
 
     @classmethod
@@ -186,3 +207,7 @@ class ListNodeParser(BaseParser):
             nodes.append(cur.val)
             cur = cur.next
         return ListParser.to_str(nodes)
+
+
+if __name__ == '__main__':
+    print(ListParser.parse('[[1],[2,3]]', typing.List[typing.List[int]]))
