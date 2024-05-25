@@ -16,6 +16,7 @@ __all__ = [
 from leeco._annotation_utils import is_optional, get_optional_type, match_type
 from leeco._representations import ListParser, TreeNodeParser, TrivialParser, ListNodeParser, get_parser
 from leeco._testcases import TestCase
+from leeco._timeit_utils import timeit_block
 from leeco.data_structures import ListNode, TreeNode
 
 _main_point = None  # type: typing.Optional[types.MethodType | typing.Type]
@@ -66,13 +67,14 @@ def _test_design(testcase: TestCase):
         ins = None
         result = []
 
-        for command, param in zip(commands, params):
-            if command == _main_point.__name__:  # create instance
-                ins = _main_point()
-                result.append(None)
-            else:  # call method
-                method = getattr(ins, command)
-                result.append(method(*param))
+        with timeit_block(testcase.timeit):
+            for command, param in zip(commands, params):
+                if command == _main_point.__name__:  # create instance
+                    ins = _main_point()
+                    result.append(None)
+                else:  # call method
+                    method = getattr(ins, command)
+                    result.append(method(*param))
         print(_dump_output(result))
 
 
@@ -89,7 +91,8 @@ def _test_solution(testcase: TestCase):
         instance = cls()
         params = _parse_params(raw_input_args[i:i + len(signature.parameters) - 1],
                                list(signature.parameters.values())[1:])
-        result = _main_point(instance, *params)
+        with timeit_block(testcase.timeit):
+            result = _main_point(instance, *params)
         print(_dump_output(result, signature.return_annotation))
 
 

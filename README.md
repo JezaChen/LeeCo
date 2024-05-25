@@ -85,7 +85,7 @@ And then debug the code, add breakpoints and do anything you want with your favo
 
 - [ ] When parse the input of list, support calling the parser of the element type.
 - [ ] Support the problems related to the probability.
-- [ ] Support the timing of the function.
+- [x] Support the timing of the function.
 - [ ] Support fetching the official testcases from LeetCode.
 - [ ] Support the recursive parsing of the input, e.g., List[List[int]].
 - [ ] Support the comparison of the output with the expected output.
