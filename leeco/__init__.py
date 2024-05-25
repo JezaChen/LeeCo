@@ -56,6 +56,10 @@ def _parse_params(input_str_list: typing.List[str], param_list: typing.List[insp
     return [_parse_input(input_str, param.annotation) for input_str, param in zip(input_str_list, param_list)]
 
 
+def _reformat_exp(e: Exception, msg: str):
+    raise TypeError(msg).with_traceback(e.__traceback__) from None  # Re-Raise with traceback of original exception
+
+
 def _test_design(testcase: TestCase):
     global _main_point
 
@@ -65,24 +69,35 @@ def _test_design(testcase: TestCase):
         raise ValueError("The input expression must have 2 lines for each test case")
 
     for case_commands_input, case_params_input in zip(input_lines[::2], input_lines[1::2]):
-        commands = TrivialParser.parse(case_commands_input.strip())
-        params = TrivialParser.parse(case_params_input.strip())
+        commands = ListParser.split_list(case_commands_input.strip())
+        params = ListParser.split_list(case_params_input.strip())
 
         ins = None
-        result = []
+        results = []
 
         with timeit_block(testcase.timeit):
             for command, param in zip(commands, params):
+                command = TrivialParser.parse(command)
+                param = list(ListParser.split_list(param))
                 try:
                     if command == _main_point.__name__:  # create instance
+                        sig = inspect.signature(_main_point.__init__)
+                        param = _parse_params(param, list(sig.parameters.values())[1:])
                         ins = _main_point(*param)
-                        result.append(None)
+                        results.append(Result(None))
                     else:  # call method
                         method = getattr(ins, command)
-                        result.append(method(*param))
+                        sig = inspect.signature(method)
+                        param = _parse_params(param, list(sig.parameters.values()))
+                        ret = method(*param)
+                        results.append(Result(ret, sig.return_annotation))
                 except TypeError as e:
-                    raise TypeError(f"Error occurred when calling `{command}` with `{param}`") from e
-        print(_dump_output(result))
+                    _reformat_exp(e, f"Error occurred when calling `{_main_point.__name__}` with `{params}`: {e}")
+
+        if testcase.print_output:
+            print(f'[{",".join(str(r) for r in results)}]')
+
+        return results
 
 
 def _test_solution(testcase: TestCase) -> typing.List[Result]:
@@ -109,9 +124,7 @@ def _test_solution(testcase: TestCase) -> typing.List[Result]:
             if testcase.print_output:
                 print(res_obj)
         except TypeError as e:
-            raise TypeError(
-                f"Error occurred when calling `{_main_point.__name__}` with `{params}`: {e}"
-            ).with_traceback(e.__traceback__) from None  # Re-Raise with traceback of original exception
+            _reformat_exp(e, f"Error occurred when calling `{_main_point.__name__}` with `{params}`: {e}")
 
     return results
 
