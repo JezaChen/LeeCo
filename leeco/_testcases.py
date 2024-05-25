@@ -21,14 +21,15 @@ class _TestCaseMeta(type):
 class TestCase(metaclass=_TestCaseMeta):
     """ A class for test case. """
     @_typing.overload
-    def __init__(self, input_str: str, expected_output_str: str = ''): ...
+    def __init__(self, input_str: str, expected_output_str: str = '', timeit: bool = False): ...
 
     @_typing.overload
     def __init__(self, test_case: 'TestCase'): ...
 
-    def __init__(self, input_str: str, expected_output_str: str = ''):
+    def __init__(self, input_str: str, expected_output_str: str = '', timeit: bool = False):
         self.input_str = input_str
         self.expected_output_str = expected_output_str
+        self.timeit = timeit
 
     def __repr__(self):
         return f"TestCase({self.input_str}, {self.expected_output_str})"

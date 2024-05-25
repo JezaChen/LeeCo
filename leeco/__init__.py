@@ -94,7 +94,7 @@ def _test_solution(testcase: TestCase):
 
 
 @typing.overload
-def test(input_str: str, expected_output_str: str = '') -> None: ...
+def test(input_str: str, expected_output_str: str = '', timeit: bool = False) -> None: ...
 
 
 @typing.overload
