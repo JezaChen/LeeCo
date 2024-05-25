@@ -61,7 +61,7 @@ if __name__ == "__main__":
     """)
 ```
 
-For design problems, if you define more than one outer class (whose name is not started with `_`) in your code,
+For design problems (like [676](https://leetcode.com/problems/implement-magic-dictionary/)), if you define more than one outer class (whose name is not started with `_`) in your code,
 you should manually specify the main class (defined by LeetCode) to test.
 
 ```python

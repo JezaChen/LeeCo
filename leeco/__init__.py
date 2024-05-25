@@ -10,8 +10,12 @@ __all__ = [
     # data structures
     'ListNode', 'TreeNode',
     # test case
-    'TestCase', 'Result'
+    'TestCase', 'Result',
+    # type hints
+    'List', 'Optional'
 ]
+
+from typing import List, Optional
 
 from leeco._annotation_utils import is_optional, get_optional_type, match_type
 from leeco._representations import ListParser, TreeNodeParser, TrivialParser, ListNodeParser, get_parser

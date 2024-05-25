@@ -14,10 +14,12 @@ __all__ = [
     # data structures
     'ListNode', 'TreeNode',
     # test case
-    'TestCase', 'Result'
+    'TestCase', 'Result',
+    # type hints
+    'List', 'Optional'
 ]
 
-
+from typing import List, Optional
 from .structs import TestCase, Result
 from .data_structures import ListNode, TreeNode
 
