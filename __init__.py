@@ -3,7 +3,7 @@ import typing
 import inspect
 import sys
 
-__all__ = ['test']
+__all__ = ['inject', 'test']
 
 _main_point = None  # type: typing.Optional[typing.Callable]
 _main_point_cls = None  # type: typing.Optional[typing.Type]
@@ -16,31 +16,54 @@ class TreeNode:
         self.right = right
 
 
-def _parse_tree_node(node: typing.List[typing.Optional[int]]) -> typing.Optional[TreeNode]:
-    if not node:
-        return None
-    root = TreeNode(node[0])
-    nodes = [root]
-    i = 1
-    while i < len(node):
-        cur = nodes.pop(0)
-        if cur is None:
-            continue
-        if node[i] is not None:
-            cur.left = TreeNode(node[i])
-            nodes.append(cur.left)
-        else:
-            nodes.append(None)
-        i += 1
-        if i >= len(node):
-            raise ValueError("Invalid tree node list")
-        if node[i] is not None:
-            cur.right = TreeNode(node[i])
-            nodes.append(cur.right)
-        else:
-            nodes.append(None)
-        i += 1
-    return root
+class _TreeNodeParser:
+    from collections import deque
+
+    @classmethod
+    def parse_tree_node(cls, node: typing.List[typing.Optional[int]]) -> typing.Optional[TreeNode]:
+        if not node:
+            return None
+        root = TreeNode(node[0])
+        nodes = cls.deque()
+        nodes.append(root)
+        i = 1
+        while i < len(node):
+            cur = nodes.popleft()
+            if cur is None:
+                continue
+            if node[i] is not None:
+                cur.left = TreeNode(node[i])
+                nodes.append(cur.left)
+            else:
+                nodes.append(None)
+            i += 1
+            if i >= len(node):
+                raise ValueError("Invalid tree node list")
+            if node[i] is not None:
+                cur.right = TreeNode(node[i])
+                nodes.append(cur.right)
+            else:
+                nodes.append(None)
+            i += 1
+        return root
+
+    @classmethod
+    def tree_node_to_list(cls, root: typing.Optional[TreeNode]) -> typing.List[typing.Optional[int]]:
+        if not root:
+            return []
+
+        nodes = cls.deque()
+        nodes.append(root)
+
+        ans = []
+
+        while nodes:
+            cur = nodes.popleft()
+            ans.append(cur.val if cur is not None else None)
+            if cur:
+                nodes.append(cur.left)
+                nodes.append(cur.right)
+        return ans
 
 
 def inject(main_point: typing.Callable):
@@ -94,4 +117,4 @@ def _try_dynamic_inject():
 # _try_dynamic_inject()
 
 if __name__ == '__main__':
-    _parse_tree_node([1, 2, 3, 4, 5, 6, 7])
+    print(_TreeNodeParser.tree_node_to_list(_TreeNodeParser.parse_tree_node([1, 2, 3, 4, 5, 6, 7])))
