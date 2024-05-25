@@ -49,6 +49,8 @@ class TrivialParser(BaseParser):
 
     @classmethod
     def to_str(cls, obj):
+        if obj is None:
+            return 'null'
         return str(obj)
 
 
