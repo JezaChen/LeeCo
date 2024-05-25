@@ -8,7 +8,7 @@ def get_description():
 
 setup(
     name="LeeCo",
-    version="0.0.1a0",
+    version="0.0.1a1",
     url="https://github.com/JezaChen/LeeCo",
     author="Jianzhang Chen",
     author_email="jezachen@163.com",
