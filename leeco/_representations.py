@@ -4,7 +4,7 @@ import abc as _abc
 import typing
 import typing as _typing
 
-from leeco.data_structures import TreeNode, ListNode
+import leeco.data_structures as ds
 from leeco._annotation_utils import match_type
 
 __all__ = [
@@ -18,9 +18,9 @@ __all__ = [
 
 def get_parser(type_annotation: typing.Type):
     parser = TrivialParser
-    if match_type(type_annotation, TreeNode):
+    if match_type(type_annotation, ds.TreeNode):
         parser = TreeNodeParser
-    if match_type(type_annotation, ListNode):
+    if match_type(type_annotation, ds.ListNode):
         parser = ListNodeParser
     if match_type(type_annotation, list):
         parser = ListParser
@@ -95,15 +95,14 @@ class ListParser(BaseParser):
         return f"[{','.join(parser.to_str(elem) for elem in obj)}]"
 
 
-
 class _TreeNodeParseHelper:
     from collections import deque
 
     @classmethod
-    def parse_tree_node(cls, nodes: _typing.List[_typing.Optional[int]]) -> _typing.Optional[TreeNode]:
+    def parse_tree_node(cls, nodes: _typing.List[_typing.Optional[int]]) -> _typing.Optional[ds.TreeNode]:
         if not nodes:
             return None
-        root = TreeNode(nodes[0])
+        root = ds.TreeNode(nodes[0])
         q = cls.deque()
         q.append(root)
         i = 1
@@ -112,7 +111,7 @@ class _TreeNodeParseHelper:
             if cur is None:
                 continue
             if nodes[i] is not None:
-                cur.left = TreeNode(nodes[i])
+                cur.left = ds.TreeNode(nodes[i])
                 q.append(cur.left)
             else:
                 q.append(None)
@@ -120,7 +119,7 @@ class _TreeNodeParseHelper:
             if i >= len(nodes):
                 break
             if nodes[i] is not None:
-                cur.right = TreeNode(nodes[i])
+                cur.right = ds.TreeNode(nodes[i])
                 q.append(cur.right)
             else:
                 q.append(None)
@@ -128,7 +127,7 @@ class _TreeNodeParseHelper:
         return root
 
     @classmethod
-    def tree_node_to_list(cls, root: _typing.Optional[TreeNode]) -> _typing.List[_typing.Optional[int]]:
+    def tree_node_to_list(cls, root: _typing.Optional[ds.TreeNode]) -> _typing.List[_typing.Optional[int]]:
         if not root:
             return []
 
@@ -154,12 +153,12 @@ class TreeNodeParser(BaseParser):
     """ A parser for TreeNode that uses eval to parse and str to serialize. """
 
     @classmethod
-    def parse(cls, representation: str) -> _typing.Optional[TreeNode]:
+    def parse(cls, representation: str) -> _typing.Optional[ds.TreeNode]:
         nodes = ListParser.parse(representation)
         return _TreeNodeParseHelper.parse_tree_node(nodes)
 
     @classmethod
-    def to_str(cls, obj: _typing.Optional[TreeNode]) -> str:
+    def to_str(cls, obj: _typing.Optional[ds.TreeNode]) -> str:
         nodes = _TreeNodeParseHelper.tree_node_to_list(obj)
         return ListParser.to_str(nodes)
 
@@ -168,19 +167,19 @@ class ListNodeParser(BaseParser):
     """ A parser for ListNode that uses eval to parse and str to serialize. """
 
     @classmethod
-    def parse(cls, representation: str) -> _typing.Optional[ListNode]:
+    def parse(cls, representation: str) -> _typing.Optional[ds.ListNode]:
         nodes = ListParser.parse(representation)
         if not nodes:
             return None
-        dummy = ListNode(-1)
+        dummy = ds.ListNode(-1)
         cur = dummy
         for val in nodes:
-            cur.next = ListNode(val)
+            cur.next = ds.ListNode(val)
             cur = cur.next
         return dummy.next
 
     @classmethod
-    def to_str(cls, obj: _typing.Optional[ListNode]) -> str:
+    def to_str(cls, obj: _typing.Optional[ds.ListNode]) -> str:
         nodes = []
         cur = obj
         while cur:

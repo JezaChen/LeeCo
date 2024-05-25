@@ -53,5 +53,6 @@ def get_elem_type(tp):
         return get_args(tp)[0]
     return None
 
+
 if __name__ == '__main__':
     get_elem_type(list[int])

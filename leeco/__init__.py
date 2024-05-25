@@ -3,11 +3,16 @@ import typing
 import inspect
 import sys
 
-__all__ = ['inject', 'test']
+__all__ = [
+    # main functions
+    'inject', 'test',
+    # data structures
+    'ListNode', 'TreeNode',
+]
 
 from leeco._annotation_utils import is_optional, get_optional_type, match_type
 from leeco._representations import ListParser, TreeNodeParser, TrivialParser, ListNodeParser, get_parser
-from leeco.data_structures import TreeNode, ListNode
+from leeco.data_structures import ListNode, TreeNode
 
 _main_point = None  # type: typing.Optional[typing.Callable]
 _main_point_cls = None  # type: typing.Optional[typing.Type]
@@ -107,10 +112,23 @@ def _get_outer_methods(cls):
     return outer_methods
 
 
+_leetCodeDataStructureClassNames = (
+    'ListNode', 'TreeNode',
+    # 'TreeLinkNode', 'UndirectedGraphNode'
+)
+
+
 def _try_dynamic_inject():
     top_level_environment = sys.modules['__main__']
+    top_level_env_dict = top_level_environment.__dict__
 
-    if 'Solution' in top_level_environment.__dict__:
+    # replace the data structure class if it is defined in the file
+    for cls_name in _leetCodeDataStructureClassNames:
+        if cls_name in top_level_env_dict:
+            import leeco.data_structures as ds
+            setattr(ds, cls_name, top_level_env_dict[cls_name])
+
+    if 'Solution' in top_level_env_dict:
         # Found the Solution class, try to inject the main point method
         SolutionCls = top_level_environment.Solution
         # If there is only one outer method, inject it

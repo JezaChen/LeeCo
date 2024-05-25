@@ -83,12 +83,12 @@ And then debug the code, add breakpoints and do anything you want with your favo
 
 ## TODOs
 
-- [x] When parse the input of list, support calling the parser of the element type.
-- [x] Support the problems related to the probability.
-- [x] Support the timing of the function.
-- [x] Support fetching the official testcases from LeetCode.
-- [x] Support the recursive parsing of the input, e.g., List[List[int]].
-- [x] Support the comparison of the output with the expected output.
-- [x] Only expose the `test` and `inject` function to the user.
+- [ ] When parse the input of list, support calling the parser of the element type.
+- [ ] Support the problems related to the probability.
+- [ ] Support the timing of the function.
+- [ ] Support fetching the official testcases from LeetCode.
+- [ ] Support the recursive parsing of the input, e.g., List[List[int]].
+- [ ] Support the comparison of the output with the expected output.
+- [ ] Only expose the `test` and `inject` function to the user.
 - [x] Support the replacement of `ListNode` or `TreeNode` defined by the user.
 

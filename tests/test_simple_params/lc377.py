@@ -17,9 +17,9 @@ class Solution:
 
 
 if __name__ == '__main__':
-    import LeetCodeTestcaseHelper
-    LeetCodeTestcaseHelper.inject(Solution.combinationSum4)
-    LeetCodeTestcaseHelper.test('''
+    import leeco
+    leeco.inject(Solution.combinationSum4)
+    leeco.test('''
     [1,2,3]
     4
     [9]
