@@ -81,20 +81,26 @@ def _test_design(testcase: TestCase):
                 param = list(ListParser.split_list(param))
                 try:
                     if command == _main_point.__name__:  # create instance
+                        # parse the parameters from the input string
                         sig = inspect.signature(_main_point.__init__)
                         param = _parse_params(param, list(sig.parameters.values())[1:])
+                        # create the instance
                         ins = _main_point(*param)
+                        # for the constructor, we don't need to record the result
                         results.append(Result(None))
                     else:  # call method
                         method = getattr(ins, command)
+                        # parse the parameters from the input string
                         sig = inspect.signature(method)
                         param = _parse_params(param, list(sig.parameters.values()))
+                        # call the method and record the result
                         ret = method(*param)
+                        # we use `Result` instances to wrap the original results
                         results.append(Result(ret, sig.return_annotation))
                 except TypeError as e:
                     _reformat_exp(e, f"Error occurred when calling `{_main_point.__name__}` with `{params}`: {e}")
 
-        if testcase.print_output:
+        if testcase.print_output:  # print the output if needed
             print(f'[{",".join(str(r) for r in results)}]')
 
         return results
