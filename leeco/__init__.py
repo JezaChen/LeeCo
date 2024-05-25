@@ -8,10 +8,13 @@ __all__ = [
     'inject', 'test',
     # data structures
     'ListNode', 'TreeNode',
+    # test case
+    'TestCase'
 ]
 
 from leeco._annotation_utils import is_optional, get_optional_type, match_type
 from leeco._representations import ListParser, TreeNodeParser, TrivialParser, ListNodeParser, get_parser
+from leeco._testcases import TestCase
 from leeco.data_structures import ListNode, TreeNode
 
 _main_point = None  # type: typing.Optional[typing.Callable]
@@ -53,11 +56,11 @@ def _parse_params(input_str_list: typing.List[str], param_list: typing.List[insp
     return [_parse_input(input_str, param.annotation) for input_str, param in zip(input_str_list, param_list)]
 
 
-def _test_design(input_expression: str, expected_result: str = ""):
+def _test_design(testcase: TestCase):
     global _main_point_cls
 
     assert _main_point_cls is not None
-    input_lines = input_expression.strip().split('\n')
+    input_lines = testcase.input_str.strip().split('\n')
     if len(input_lines) % 2:
         raise ValueError("The input expression must have 2 lines for each test case")
 
@@ -78,18 +81,27 @@ def _test_design(input_expression: str, expected_result: str = ""):
         print(_dump_output(result))
 
 
-def test(input_expression: str, expected_result: str = ""):
+@typing.overload
+def test(input_str: str, expected_output_str: str = '') -> None: ...
+
+
+@typing.overload
+def test(testcase: TestCase, /) -> None: ...
+
+
+def test(*args, **kwargs):
     global _main_point, _main_point_cls
 
+    testcase = TestCase(*args, **kwargs)
     if _main_point is None and _main_point_cls is None:
         _try_dynamic_inject()
     if _main_point is None and _main_point_cls is None:
         raise RuntimeError("Please inject main_point first")
     if _main_point is None:
         # may be a design problem
-        return _test_design(input_expression, expected_result)
+        return _test_design(testcase)
 
-    input_lines = input_expression.strip().split('\n')
+    input_lines = testcase.input_str.strip().split('\n')
     raw_input_args = [line.strip() for line in input_lines]
 
     signature = inspect.signature(_main_point)
@@ -142,6 +154,7 @@ def _try_dynamic_inject():
         # May be a design problem, try to find the class
         classes = inspect.getmembers(top_level_environment, inspect.isclass)
         # Filter the class which is defined in the file and not a private class
+        # todo exclude the data structure classes
         classes = [cls for name, cls in classes if cls.__module__ == '__main__' and not name.startswith('_')]
         if len(classes) == 1:
             inject(classes[0])
