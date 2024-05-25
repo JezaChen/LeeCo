@@ -8,7 +8,7 @@ def get_description():
 
 setup(
     name="LeeCo",
-    version="0.0.1a1",
+    version="0.0.1b",
     url="https://github.com/JezaChen/LeeCo",
     author="Jianzhang Chen",
     author_email="jezachen@163.com",
@@ -20,7 +20,7 @@ setup(
     python_requires=">=3.7, <4",
     keywords="leetcode",
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "Operating System :: Microsoft :: Windows",
         "Programming Language :: Python :: 3.7",
@@ -29,7 +29,6 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
-        "Development Status :: 4 - Beta",
         "License :: OSI Approved :: MIT License",
     ],
     package_data={
