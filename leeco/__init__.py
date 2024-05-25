@@ -10,7 +10,7 @@ __all__ = [
     # data structures
     'ListNode', 'TreeNode',
     # test case
-    'TestCase'
+    'TestCase', 'Result'
 ]
 
 from leeco._annotation_utils import is_optional, get_optional_type, match_type
