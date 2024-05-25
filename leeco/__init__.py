@@ -69,12 +69,15 @@ def _test_design(testcase: TestCase):
 
         with timeit_block(testcase.timeit):
             for command, param in zip(commands, params):
-                if command == _main_point.__name__:  # create instance
-                    ins = _main_point(*param)
-                    result.append(None)
-                else:  # call method
-                    method = getattr(ins, command)
-                    result.append(method(*param))
+                try:
+                    if command == _main_point.__name__:  # create instance
+                        ins = _main_point(*param)
+                        result.append(None)
+                    else:  # call method
+                        method = getattr(ins, command)
+                        result.append(method(*param))
+                except TypeError as e:
+                    raise TypeError(f"Error occurred when calling `{command}` with `{param}`") from e
         print(_dump_output(result))
 
 
@@ -91,8 +94,11 @@ def _test_solution(testcase: TestCase):
         instance = cls()
         params = _parse_params(raw_input_args[i:i + len(signature.parameters) - 1],
                                list(signature.parameters.values())[1:])
-        with timeit_block(testcase.timeit):
-            result = _main_point(instance, *params)
+        try:
+            with timeit_block(testcase.timeit):
+                result = _main_point(instance, *params)
+        except TypeError as e:
+            raise TypeError(f"Error occurred when calling `{_main_point.__name__}` with `{params}`") from e
         print(_dump_output(result, signature.return_annotation))
 
 
