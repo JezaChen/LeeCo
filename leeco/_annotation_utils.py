@@ -7,6 +7,7 @@ import sys
 __all__ = [
     'get_origin',
     'get_args',
+    'is_union',
     'is_optional',
     'get_optional_type',
     'match_type',
@@ -32,9 +33,16 @@ except ImportError:
         return ()
 
 
-def is_optional(tp):
+def is_union(tp):
     orig = get_origin(tp)
-    return (orig is _typing.Union or orig is _types.UnionType) and type(None) in get_args(tp)
+
+    if sys.version_info >= (3, 10):
+        return orig is _typing.Union or orig is _types.UnionType
+    return orig is _typing.Union
+
+
+def is_optional(tp):
+    return is_union(tp) and type(None) in get_args(tp)
 
 
 def get_optional_type(tp):

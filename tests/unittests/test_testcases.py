@@ -4,7 +4,7 @@ import unittest
 
 class TestTestcaseStructure(unittest.TestCase):
     def test_testcase_structure(self):
-        from leeco._testcases import TestCase
+        from leeco.structs import TestCase
 
         # Test the metaclass _TestCaseMeta
         t = TestCase("input", "expected_output")

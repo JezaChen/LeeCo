@@ -32,4 +32,7 @@ setup(
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: MIT License",
     ],
+    package_data={
+        'leeco': ['*.pyi', 'py.typed'],
+    }
 )

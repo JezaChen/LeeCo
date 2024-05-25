@@ -15,7 +15,7 @@ __all__ = [
 
 from leeco._annotation_utils import is_optional, get_optional_type, match_type
 from leeco._representations import ListParser, TreeNodeParser, TrivialParser, ListNodeParser, get_parser
-from leeco._testcases import TestCase
+from leeco.structs import TestCase, Result
 from leeco._timeit_utils import timeit_block
 from leeco.data_structures import ListNode, TreeNode
 
@@ -81,7 +81,7 @@ def _test_design(testcase: TestCase):
         print(_dump_output(result))
 
 
-def _test_solution(testcase: TestCase):
+def _test_solution(testcase: TestCase) -> typing.List[Result]:
     cls = vars(sys.modules[_main_point.__module__])[_main_point.__qualname__.split('.')[0]]
     input_lines = testcase.input_str.strip().split('\n')
     raw_input_args = [line.strip() for line in input_lines]
@@ -90,27 +90,33 @@ def _test_solution(testcase: TestCase):
     if len(raw_input_args) % (len(signature.parameters) - 1) != 0:
         raise ValueError("The number of input arguments is not a multiple of the number of parameters")
 
+    results = []
+
     for i in range(0, len(raw_input_args), len(signature.parameters) - 1):
         instance = cls()
         params = _parse_params(raw_input_args[i:i + len(signature.parameters) - 1],
                                list(signature.parameters.values())[1:])
         try:
             with timeit_block(testcase.timeit):
-                result = _main_point(instance, *params)
+                raw_result = _main_point(instance, *params)
+            res_obj = Result(raw_result, signature.return_annotation)
+            results.append(res_obj)
+            # print the output if needed
+            if testcase.print_output:
+                print(res_obj)
         except TypeError as e:
             raise TypeError(f"Error occurred when calling `{_main_point.__name__}` with `{params}`") from e
-        print(_dump_output(result, signature.return_annotation))
+
+    return results
 
 
-@typing.overload
-def test(input_str: str, expected_output_str: str = '', timeit: bool = False) -> None: ...
+if sys.version_info >= (3, 9):
+    ResultList = list[Result]
+else:
+    ResultList = typing.List[Result]
 
 
-@typing.overload
-def test(testcase: TestCase, /) -> None: ...
-
-
-def test(*args, **kwargs):
+def test(*args, **kwargs) -> ResultList:
     global _main_point
 
     testcase = TestCase(*args, **kwargs)
