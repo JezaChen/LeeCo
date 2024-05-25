@@ -18,11 +18,13 @@ __all__ = [
 
 def get_parser(type_annotation: typing.Type):
     parser = TrivialParser
-    if match_type(type_annotation, ds.TreeNode):
+    if match_type(type_annotation, str):
+        parser = StringParser
+    elif match_type(type_annotation, ds.TreeNode):
         parser = TreeNodeParser
-    if match_type(type_annotation, ds.ListNode):
+    elif match_type(type_annotation, ds.ListNode):
         parser = ListNodeParser
-    if match_type(type_annotation, list):
+    elif match_type(type_annotation, list):
         # todo add element type detection?
         parser = ListParser
     return parser
@@ -51,7 +53,14 @@ class TrivialParser(BaseParser):
     def to_str(cls, obj):
         if obj is None:
             return 'null'
-        return str(obj)
+        return repr(obj)
+
+
+class StringParser(TrivialParser):
+    @classmethod
+    def to_str(cls, obj):
+        import json
+        return json.dumps(obj)
 
 
 ListElemType = typing.TypeVar('ListElemType')
