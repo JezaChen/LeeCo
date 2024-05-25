@@ -81,3 +81,10 @@ if __name__ == "__main__":
 
 And then debug the code, add breakpoints and do anything you want with your favorite IDE or text editor.
 
+## TODOs
+
+- [x] When parse the input of list, support calling the parser of the element type.
+- [x] Support the problems related to the probability.
+- [x] Support the timing of the function.
+- [x] Support fetching the official testcases from LeetCode.
+- [x] Support the recursive parsing of the input, e.g., List[List[int]].

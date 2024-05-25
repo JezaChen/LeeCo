@@ -5,8 +5,8 @@ import sys
 
 __all__ = ['inject', 'test']
 
-from leeco._annotation_utils import is_optional, get_optional_type
-from leeco._representations import ListParser, TreeNodeParser, TrivialParser, ListNodeParser
+from leeco._annotation_utils import is_optional, get_optional_type, match_type
+from leeco._representations import ListParser, TreeNodeParser, TrivialParser, ListNodeParser, get_parser
 from leeco.data_structures import TreeNode, ListNode
 
 _main_point = None  # type: typing.Optional[typing.Callable]
@@ -30,31 +30,15 @@ def dump_output(output, annotation=None) -> str:
         if is_optional(annotation):
             output_type = get_optional_type(annotation)
 
-    return {
-        TreeNode: TreeNodeParser,
-        ListNode: ListNodeParser,
-        list: ListParser,
-    }.get(output_type, TrivialParser).to_str(output)
+    parser = get_parser(output_type)
+    return parser.to_str(output)
 
 
 _InputType = typing.TypeVar('_InputType')
 
 
-def match_type(input_type_annotation, desired_type) -> bool:
-    underlying_type = input_type_annotation
-    if is_optional(input_type_annotation):
-        underlying_type = get_optional_type(input_type_annotation)
-    return underlying_type == desired_type
-
-
 def parse_input(input_str: str, input_type_annotation: typing.Type[_InputType]) -> _InputType:
-    parser = TrivialParser
-    if match_type(input_type_annotation, TreeNode):
-        parser = TreeNodeParser
-    if match_type(input_type_annotation, ListNode):
-        parser = ListNodeParser
-    if match_type(input_type_annotation, list):
-        parser = ListParser
+    parser = get_parser(input_type_annotation)
     return parser.parse(input_str)
 
 

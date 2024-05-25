@@ -7,6 +7,7 @@ __all__ = [
     'get_args',
     'is_optional',
     'get_optional_type',
+    'match_type',
 ]
 
 
@@ -38,3 +39,19 @@ def get_optional_type(tp):
         if len(args) == 2 and args[1] is type(None):
             return args[0]
         raise ValueError(f"Invalid Optional type: {tp}")
+
+
+def match_type(input_type_annotation, desired_type) -> bool:
+    underlying_type = input_type_annotation
+    if is_optional(input_type_annotation):
+        underlying_type = get_optional_type(input_type_annotation)
+    return underlying_type == desired_type or get_origin_type(underlying_type) == desired_type
+
+
+def get_elem_type(tp):
+    if match_type(tp, list):
+        return get_args(tp)[0]
+    return None
+
+if __name__ == '__main__':
+    get_elem_type(list[int])

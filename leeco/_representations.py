@@ -1,9 +1,11 @@
 # -*- encoding:utf-8 -*-
 # The representation of data structures in LeetCode.
 import abc as _abc
+import typing
 import typing as _typing
 
 from leeco.data_structures import TreeNode, ListNode
+from leeco._annotation_utils import match_type
 
 __all__ = [
     'BaseParser',
@@ -12,6 +14,17 @@ __all__ = [
     'TreeNodeParser',
     'ListNodeParser',
 ]
+
+
+def get_parser(type_annotation: typing.Type):
+    parser = TrivialParser
+    if match_type(type_annotation, TreeNode):
+        parser = TreeNodeParser
+    if match_type(type_annotation, ListNode):
+        parser = ListNodeParser
+    if match_type(type_annotation, list):
+        parser = ListParser
+    return parser
 
 
 class BaseParser(_abc.ABC):
@@ -38,27 +51,49 @@ class TrivialParser(BaseParser):
         return str(obj)
 
 
+ListElemType = typing.TypeVar('ListElemType')
+
+
 class ListParser(BaseParser):
     """ A parser for list that uses eval to parse and str to serialize. """
 
     @classmethod
-    def parse(cls, representation: str) -> _typing.List[_typing.Optional[int]]:
+    def parse(
+            cls,
+            representation: str,
+            elem_type: typing.Optional[typing.Type[ListElemType]] = None
+    ) -> _typing.List[_typing.Optional[ListElemType]]:
         representation = representation.strip()
         if not representation or representation[0] != '[' or representation[-1] != ']':
             raise ValueError("Invalid list format")
-        # replace 'null' with 'None'
-        input_str = representation.replace('null', 'None', -1)
-        return TrivialParser.parse(input_str)
+
+        if elem_type is None:
+            # replace 'null' with 'None'
+            input_str = representation.replace('null', 'None', -1)
+            # call the trivial parser
+            return TrivialParser.parse(input_str)
+
+        representation = representation[1:-1]
+        if not representation:
+            return []
+        parser = get_parser(elem_type)
+
+        return [
+            parser.parse(elem_str.strip())
+            for elem_str in representation.split(',')
+        ]
 
     @classmethod
     def to_str(cls, obj: _typing.List) -> str:
-        return (
-            TrivialParser.to_str(obj)
-            .replace('None', 'null')
-            .replace(' ', '')
-            .replace('True', 'true')
-            .replace('False', 'false')
-        )
+        if not obj:
+            return "[]"
+
+        # detect the element type
+        elem_type = type(obj[0])
+        parser = get_parser(elem_type)
+
+        return f"[{','.join(parser.to_str(elem) for elem in obj)}]"
+
 
 
 class _TreeNodeParseHelper:
