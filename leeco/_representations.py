@@ -106,6 +106,9 @@ class ListParser(BaseParser):
         if elem_type is None:
             # replace 'null' with 'None'
             input_str = representation.replace('null', 'None', -1)
+            # replace '\\' with '\\\\' before call TrivialParser.parse
+            # e.g. eval('"\\"') or eval(r'"\"') will raise a SyntaxError
+            input_str = input_str.replace('\\', '\\\\')
             # call the trivial parser
             return TrivialParser.parse(input_str)
         parser = get_parser(elem_type)
