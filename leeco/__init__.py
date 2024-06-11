@@ -68,12 +68,14 @@ def _test_design(testcase: TestCase):
     if len(input_lines) % 2:
         raise ValueError("The input expression must have 2 lines for each test case")
 
+    all_results = []
+
     for case_commands_input, case_params_input in zip(input_lines[::2], input_lines[1::2]):
         commands = ListParser.split_list(case_commands_input.strip())
         params = ListParser.split_list(case_params_input.strip())
 
         ins = None
-        results = []
+        results_for_case = []
 
         with timeit_block(testcase.timeit):
             for command, param in zip(commands, params):
@@ -87,7 +89,7 @@ def _test_design(testcase: TestCase):
                         # create the instance
                         ins = _main_point(*param)
                         # for the constructor, we don't need to record the result
-                        results.append(Result(None))
+                        results_for_case.append(Result(None))
                     else:  # call method
                         method = getattr(ins, command)
                         # parse the parameters from the input string
@@ -96,14 +98,16 @@ def _test_design(testcase: TestCase):
                         # call the method and record the result
                         ret = method(*param)
                         # we use `Result` instances to wrap the original results
-                        results.append(Result(ret, sig.return_annotation))
+                        results_for_case.append(Result(ret, sig.return_annotation))
                 except TypeError as e:
                     _reformat_exp(e, f"Error occurred when calling `{_main_point.__name__}` with `{params}`: {e}")
 
         if testcase.print_output:  # print the output if needed
-            print(f'[{",".join(str(r) for r in results)}]')
+            print(f'[{",".join(str(r) for r in results_for_case)}]')
 
-        return results
+        all_results.append(results_for_case)
+
+    return all_results
 
 
 def _test_solution(testcase: TestCase) -> typing.List[Result]:

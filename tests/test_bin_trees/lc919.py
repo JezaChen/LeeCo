@@ -101,7 +101,10 @@ class CBTInserter:
 if __name__ == '__main__':
     import leeco
 
-    leeco.test("""
+    r = leeco.test("""
+["CBTInserter","insert","insert","get_root"]
+[[[1,2,3,4,5,6]],[7],[8],[]]
 ["CBTInserter","insert","insert","get_root"]
 [[[1,2,3,4,5,6]],[7],[8],[]]
     """)
+    print(r)
