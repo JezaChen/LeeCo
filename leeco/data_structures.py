@@ -1,4 +1,11 @@
 # -*- encoding:utf-8 -*-
+import typing as _typing
+
+__all__ = [
+    'TreeNode',
+    'ListNode',
+]
+
 
 class TreeNode:
     """ Definition for a binary tree node commonly used in LeetCode problems."""
@@ -20,7 +27,7 @@ class ListNode:
 
     def __init__(self, val=0, next=None):
         self.val = val
-        self.next = next
+        self.next = next  # type: _typing.Optional[ListNode]
 
     def __repr__(self):
         return f'{type(self).__name__}(val={self.val})'
