@@ -82,6 +82,6 @@ def visualize_tree(tree_repr: str):
 
 
 if __name__ == '__main__':
-    # drawtree(deserialize('[1,2,3,null,null,4,null,null,5]'))
-    t = '[1,2,10,12,13,4,6]'
-    drawtree(TreeNodeParser.parse(t))
+    visualize_tree('[1,2,3,4,null,null,7,8,9,null,14]')
+    # t = '[1,2,10,12,13,4,6]'
+    # drawtree(TreeNodeParser.parse(t))

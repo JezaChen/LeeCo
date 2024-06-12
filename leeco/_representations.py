@@ -5,7 +5,7 @@ import typing
 import typing as _typing
 
 import leeco.data_structures as ds
-from leeco._annotation_utils import match_type
+from leeco._annotation_utils import match_type, get_elem_type
 
 __all__ = [
     'BaseParser',
@@ -25,8 +25,8 @@ def get_parser(type_annotation: typing.Type):
     elif match_type(type_annotation, ds.ListNode):
         parser = ListNodeParser
     elif match_type(type_annotation, list):
-        # todo add element type detection?
-        parser = ListParser
+        elem_type = get_elem_type(type_annotation)
+        parser = ListParser[elem_type]
     return parser
 
 
@@ -65,9 +65,13 @@ class StringParser(TrivialParser):
 
 ListElemType = typing.TypeVar('ListElemType')
 
+# elem type -> list parser
+_ListParserCache = {}
+
 
 class ListParser(BaseParser):
     """ A parser for list that uses eval to parse and str to serialize. """
+    _ElementType = typing.Any
 
     @classmethod
     def split_list(cls, representation: str) -> typing.Iterator[typing.Any]:
@@ -109,8 +113,8 @@ class ListParser(BaseParser):
             # replace '\\' with '\\\\' before call TrivialParser.parse
             # e.g. eval('"\\"') or eval(r'"\"') will raise a SyntaxError
             input_str = input_str.replace('\\', '\\\\')
-            # call the trivial parser
-            return TrivialParser.parse(input_str)
+            # call the element parser to parse each element
+            return get_parser(cls._ElementType).parse(input_str)
         parser = get_parser(elem_type)
 
         return [
@@ -124,10 +128,21 @@ class ListParser(BaseParser):
             return "[]"
 
         # detect the element type
-        elem_type = type(obj[0])
-        parser = get_parser(elem_type)
+        parser = get_parser(cls._ElementType if cls._ElementType is not typing.Any else type(obj[0]))
 
         return f"[{','.join(parser.to_str(elem) for elem in obj)}]"
+
+    def __class_getitem__(cls, elem_type):
+        # inherit the class and set the element type
+        global _ListParserCache
+        if elem_type not in _ListParserCache:
+            _ListParserCache[elem_type] = type(
+                f'{cls.__name__}[{elem_type}]',
+                (cls,),
+                {'_ElementType': elem_type}
+            )
+
+        return _ListParserCache[elem_type]
 
 
 class _TreeNodeParseHelper:

@@ -11,6 +11,7 @@ __all__ = [
     'is_optional',
     'get_optional_type',
     'match_type',
+    'get_elem_type',
 ]
 
 try:
