@@ -92,4 +92,5 @@ And then debug the code, add breakpoints and do anything you want with your favo
 - [ ] Only expose the `test` and `inject` function to the user.
 - [x] Support the replacement of `ListNode` or `TreeNode` defined by the user.
 - [ ] Unit tests.
+- [ ] Print or store intermediate results for `lru_cache` 
 
