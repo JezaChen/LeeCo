@@ -1,0 +1,4 @@
+theme: jekyll-theme-cayman
+baseurl: ''
+title: LeeCo
+description: 'A utility for empowering debugging LeetCode problems locally in Python.'
