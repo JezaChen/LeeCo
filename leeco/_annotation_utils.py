@@ -90,6 +90,7 @@ def match_type(input_type_annotation, desired_type) -> bool:
         return False
     if underlying_type_orig is list:
         return not get_args(desired_type) or get_args(underlying_type) == get_args(desired_type)
+    return False
 
 
 def get_elem_type(tp):
