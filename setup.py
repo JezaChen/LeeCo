@@ -8,7 +8,7 @@ def get_description():
 
 setup(
     name="LeeCo",
-    version="0.0.1b",
+    version="0.0.1c",
     url="https://github.com/JezaChen/LeeCo",
     author="Jianzhang Chen",
     author_email="jezachen@163.com",
@@ -29,6 +29,8 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "License :: OSI Approved :: MIT License",
     ],
     package_data={
