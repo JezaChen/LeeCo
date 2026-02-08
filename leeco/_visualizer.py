@@ -1,5 +1,6 @@
 # -*- encoding:utf-8 -*-
 from leeco._representations import TreeNodeParser
+from typing import Tuple, Optional
 
 
 def drawtree(root):
@@ -19,7 +20,7 @@ def drawtree(root):
             jumpto(*parent_pos)
             t.goto(lc_pos[0], lc_pos[1] + 20)
 
-    def draw_l2r(node, start_x: int, y: int) -> (int, (int, int)):
+    def draw_l2r(node, start_x: int, y: int) -> Tuple[int, Optional[Tuple[int, int]]]:
         if node is None:
             return start_x, None
         x = start_x
@@ -37,7 +38,7 @@ def drawtree(root):
         _draw_lines(self_node_pos, lc_pos, rc_pos)
         return x, self_node_pos
 
-    def draw_r2l(node, start_x: int, y: int) -> (int, (int, int)):
+    def draw_r2l(node, start_x: int, y: int) -> Tuple[int, Optional[Tuple[int, int]]]:
         if node is None:
             return start_x, None
         x = start_x

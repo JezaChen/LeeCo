@@ -17,7 +17,7 @@ class TreeNode(typing.Generic[T]):
     left: _typing.Optional[TreeNode]
     right: _typing.Optional[TreeNode]
 
-    def __init__(self, val: T = T(), left: _typing.Optional[TreeNode] = None, right: _typing.Optional[TreeNode] = None):
+    def __init__(self, val: T = ..., left: _typing.Optional[TreeNode] = None, right: _typing.Optional[TreeNode] = None):
         ...
 
     def __repr__(self) -> str: ...
@@ -28,9 +28,9 @@ class TreeNode(typing.Generic[T]):
 class ListNode(typing.Generic[T]):
     """ Definition for singly-linked list commonly used in LeetCode problems. """
     val: T
-    next: _typing.Optional[TreeNode]
+    next: _typing.Optional[ListNode]
 
-    def __init__(self, val: T = T(), next: _typing.Optional[TreeNode] = None): ...
+    def __init__(self, val: T = ..., next: _typing.Optional[ListNode] = None): ...
 
     def __repr__(self) -> str: ...
 
