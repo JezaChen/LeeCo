@@ -148,6 +148,8 @@ else:
 def test(*args, **kwargs) -> ResultList:
     global _main_point
 
+    _patch_data_structure_classes()
+
     testcase = TestCase(*args, **kwargs)
     if _main_point is None:
         # Try to find the default main points to injects
@@ -178,11 +180,11 @@ _leetCodeDataStructureClassNames = (
 )
 
 
-def _try_dynamic_inject():
+def _patch_data_structure_classes():
+    # replace the data structure class if it is defined in the file
     top_level_environment = sys.modules['__main__']
     top_level_env_dict = top_level_environment.__dict__
 
-    # replace the data structure class if it is defined in the file
     for cls_name in _leetCodeDataStructureClassNames:
         if cls_name in top_level_env_dict:
             cls = top_level_env_dict[cls_name]
@@ -192,6 +194,11 @@ def _try_dynamic_inject():
             )
             import leeco.data_structures as ds
             setattr(ds, cls_name, cls)
+
+
+def _try_dynamic_inject():
+    top_level_environment = sys.modules['__main__']
+    top_level_env_dict = top_level_environment.__dict__
 
     if 'Solution' in top_level_env_dict:
         # Found the Solution class, try to inject the main point method
