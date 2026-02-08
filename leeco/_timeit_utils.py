@@ -3,7 +3,6 @@
 
 import contextlib
 import dataclasses
-import typing
 
 __all__ = [
     'TimeCost',
